@@ -78,9 +78,10 @@ subscriptions model =
 view : Model -> Html.Html message
 view model =
     View.Main.frame
-        (View.Navigator.navigator
-            "Manufaktura"
-            View.Navigator.simpleMenuItems
+        (View.Navigator.simpleMenuItems
+            [ "home", "project", "gitbucket" ]
+            |> View.Navigator.navigator
+                "Manufaktura"
         )
         [ Html.text "main contents" ]
         [ Html.text "side contents" ]

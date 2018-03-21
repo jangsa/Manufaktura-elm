@@ -26,8 +26,8 @@ simpleMenuItem name pageName =
         [ text name ]
 
 
-simpleMenuItems : List (Html.Html message)
-simpleMenuItems =
+simpleMenuItems : List String -> List (Html.Html message)
+simpleMenuItems items =
     List.map
         (\item -> simpleMenuItem item item)
-        [ "home", "project", "gitbucket" ]
+        items
