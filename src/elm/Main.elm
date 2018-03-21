@@ -4,6 +4,9 @@ import Maybe exposing (withDefault)
 import Navigation exposing (program, Location)
 import UrlParser
 import Html
+import Html.Attributes
+import View.Main
+import View.Navigator
 
 
 type Message
@@ -74,7 +77,13 @@ subscriptions model =
 
 view : Model -> Html.Html message
 view model =
-    Html.text "testtest"
+    View.Main.frame
+        (View.Navigator.navigator
+            "Manufaktura"
+            View.Navigator.simpleMenuItems
+        )
+        [ Html.text "main contents" ]
+        [ Html.text "side contents" ]
 
 
 main : Program Never Model Message
