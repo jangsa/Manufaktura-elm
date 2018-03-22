@@ -1,11 +1,22 @@
-module View.Main exposing (..)
+module View.Structures exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-frame : Html message -> List (Html message) -> List (Html message) -> Html message
-frame navigator mainContents sideContents =
+type alias NavigatorState =
+    { sideMenu : Bool
+    }
+
+
+initNavigatorState : NavigatorState
+initNavigatorState =
+    { sideMenu = True
+    }
+
+
+frame : NavigatorState -> Html message -> List (Html message) -> List (Html message) -> Html message
+frame state navigator mainContents sideContents =
     div
         [ class "flex flex-column", style [ ( "min-height", "100vh" ) ] ]
         [ header
@@ -14,11 +25,14 @@ frame navigator mainContents sideContents =
         , div
             [ class "flex-auto sm-flex" ]
             [ main_
-                [ class "flex-auto" ]
+                [ class "flex-auto px2" ]
                 mainContents
-            , aside
-                [ class "bg-gray white border", style [ ( "width", "20%" ) ] ]
-                sideContents
+            , displayIf
+                state.sideMenu
+                (aside
+                    [ class "bg-gray white border p2", style [ ( "width", "20%" ) ] ]
+                    sideContents
+                )
             ]
         , footer
             [ class "border gray" ]
@@ -41,3 +55,11 @@ default =
             [ class "h2 red" ]
             [ text "404 NOT FOUND" ]
         ]
+
+
+displayIf : Bool -> Html msg -> Html msg
+displayIf cond node =
+    if cond then
+        node
+    else
+        text ""
