@@ -8,22 +8,43 @@ import Html.Attributes
 import View.Structures
 import View.Navigator
 import Project.Main
+import Project.Model
+import Project.Messages
 import Project.Detail.Main
+import Project.Detail.Model
+import Project.Detail.Messages
 
 
 type Message
     = NoMessage
     | LocationChangeMessage Location
-    | ProjectMessage Project.Main.Message
-    | ProjectDetailMessage Project.Detail.Main.Message
+    | ProjectMessage Project.Messages.Message
+    | ProjectDetailMessage Project.Detail.Messages.Message
 
 
 type Page
     = NoSuchPage
     | HomePage
-    | ProjectPage Project.Main.Page
-    | ProjectDetailPage Project.Detail.Main.Page
+    | ProjectPage Project.Model.Page
+    | ProjectDetailPage Project.Detail.Model.Page
     | GitBucketPage
+
+
+type alias Model =
+    { page : Page
+    , navigatorState : View.Structures.NavigatorState
+    , projectModel : Project.Model.Model
+    , projectDetailModel : Project.Detail.Model.Model
+    }
+
+
+initModel : Page -> Model
+initModel page =
+    { page = page
+    , navigatorState = View.Structures.initNavigatorState
+    , projectModel = Project.Model.initModel
+    , projectDetailModel = Project.Detail.Model.initModel
+    }
 
 
 matchList : List (Parser (Page -> a) a)
@@ -50,36 +71,37 @@ parseLocation location =
         (UrlParser.parseHash matchers location)
 
 
-type alias Model =
-    { page : Page
-    , navigatorState : View.Structures.NavigatorState
-    , projectModel : Project.Main.Model
-    , projectDetailModel : Project.Detail.Main.Model
-    }
+updateSub : Model -> Page -> Location -> ( Model, Cmd Message )
+updateSub model newPage location =
+    case newPage of
+        ProjectPage _ ->
+            let
+                ( newProjectModel, newProjectMessage ) =
+                    Project.Main.update
+                        (Project.Messages.LocationChangeMessage location)
+                        model.projectModel
+            in
+                ( { model
+                    | projectModel = newProjectModel
+                  }
+                , Cmd.map ProjectMessage newProjectMessage
+                )
 
+        ProjectDetailPage _ ->
+            let
+                ( newProjectDetailModel, newProjectDetailMessage ) =
+                    Project.Detail.Main.update
+                        (Project.Detail.Messages.LocationChangeMessage location)
+                        model.projectDetailModel
+            in
+                ( { model
+                    | projectDetailModel = newProjectDetailModel
+                  }
+                , Cmd.map ProjectDetailMessage newProjectDetailMessage
+                )
 
-initModel : Page -> Model
-initModel page =
-    { page = page
-    , navigatorState = View.Structures.initNavigatorState
-    , projectModel = Project.Main.initModel
-    , projectDetailModel = Project.Detail.Main.initModel
-    }
-
-
-init : Location -> ( Model, Cmd Message )
-init location =
-    ( parseLocation location |> initModel, Cmd.none )
-
-
-takeActiveCmd : List (Cmd message) -> Cmd message
-takeActiveCmd cmds =
-    case List.head <| List.filter (\c -> c /= Cmd.none) cmds of
-        Just cmd ->
-            cmd
-
-        Nothing ->
-            Cmd.none
+        _ ->
+            ( model, Cmd.none )
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -93,29 +115,10 @@ update message model =
                 newPage =
                     parseLocation location
 
-                ( newProjectModel, newProjectMessage ) =
-                    Project.Main.update
-                        (Project.Main.LocationChangeMessage location)
-                        model.projectModel
-
-                ( newProjectDetailModel, newProjectDetailMessage ) =
-                    Project.Detail.Main.update
-                        (Project.Detail.Main.LocationChangeMessage location)
-                        model.projectDetailModel
-
-                newCommand =
-                    takeActiveCmd
-                        [ Cmd.map ProjectMessage newProjectMessage
-                        , Cmd.map ProjectDetailMessage newProjectDetailMessage
-                        ]
+                modelWithNewPage =
+                    { model | page = newPage }
             in
-                ( { model
-                    | page = newPage
-                    , projectModel = newProjectModel
-                    , projectDetailModel = newProjectDetailModel
-                  }
-                , newCommand
-                )
+                updateSub modelWithNewPage newPage location
 
         ProjectMessage projectMessage ->
             let
@@ -150,7 +153,7 @@ home =
         ]
 
 
-view : Model -> Html.Html message
+view : Model -> Html.Html Message
 view model =
     let
         mainContents =
@@ -162,10 +165,16 @@ view model =
                     [ home ]
 
                 ProjectPage _ ->
-                    [ Project.Main.view model.projectModel ]
+                    [ Html.map
+                        ProjectMessage
+                        (Project.Main.view model.projectModel)
+                    ]
 
                 ProjectDetailPage _ ->
-                    [ Project.Detail.Main.view model.projectDetailModel ]
+                    [ Html.map
+                        ProjectDetailMessage
+                        (Project.Detail.Main.view model.projectDetailModel)
+                    ]
 
                 GitBucketPage ->
                     [ Html.text "GitBucket Page" ]
@@ -176,12 +185,17 @@ view model =
         View.Structures.frame
             model.navigatorState
             (View.Navigator.simpleMenuItems
-                [ "home", "project", "gitbucket" ]
+                [ "home", "projects", "gitbucket" ]
                 |> View.Navigator.navigator
                     "Manufaktura"
             )
             mainContents
             sideContents
+
+
+init : Location -> ( Model, Cmd Message )
+init location =
+    ( parseLocation location |> initModel, Cmd.none )
 
 
 main : Program Never Model Message

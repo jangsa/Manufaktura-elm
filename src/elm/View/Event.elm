@@ -3,7 +3,7 @@ module View.Events exposing (..)
 import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
-import Utility.JsonDecode exposing (stringAt)
+import Utility.Json exposing (stringAt)
 
 
 targetID : Decode.Decoder String

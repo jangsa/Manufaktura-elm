@@ -1,4 +1,4 @@
-module Utility.JsonDecode exposing (..)
+module Utility.Json exposing (..)
 
 
 stringAt : List String -> Decode.Decoder String

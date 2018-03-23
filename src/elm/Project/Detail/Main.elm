@@ -4,16 +4,14 @@ import Maybe exposing (withDefault)
 import Html
 import Navigation exposing (Location)
 import UrlParser exposing (..)
-
-
-type Page
-    = NoSuchPage
-    | UpdatePage String
+import Utility.UploadPorts as UploadPorts
+import Project.Detail.Model exposing (..)
+import Project.Detail.Messages exposing (Message(..))
 
 
 matchList : List (Parser (Page -> a) a)
 matchList =
-    [ UrlParser.map UpdatePage <| (s "project" </> string)
+    [ UrlParser.map UpdatePage <| (s "projects" </> string)
     ]
 
 
@@ -28,49 +26,6 @@ parseLocation location =
     withDefault
         NoSuchPage
         (UrlParser.parseHash matchers location)
-
-
-type Message
-    = NoMessage
-    | LocationChangeMessage Location
-
-
-type alias Job =
-    { id : String
-    , name : String
-    , inputUrl : String
-    , inputReady : Bool
-    , outputUrl : String
-    , outputReady : Bool
-    }
-
-
-type alias ProjectDetail =
-    { id : String
-    , name : String
-    , created : String
-    , batch : List Job
-    }
-
-
-initProjectDetail : ProjectDetail
-initProjectDetail =
-    { id = ""
-    , name = ""
-    , created = ""
-    , batch = []
-    }
-
-
-type alias Model =
-    { projectDetail : ProjectDetail
-    }
-
-
-initModel : Model
-initModel =
-    { projectDetail = initProjectDetail
-    }
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -101,7 +56,21 @@ update message model =
             in
                 ( newModel, Cmd.none )
 
+        DidFetchDetailMessage _ ->
+            ( model, Cmd.none )
+
+        DidFileUploadMessage _ ->
+            ( model, Cmd.none )
+
+        DidReceiveBase64BodyMessage _ ->
+            ( model, Cmd.none )
+
 
 view : Model -> Html.Html message
 view model =
     Html.text <| "project@" ++ model.projectDetail.id
+
+
+subscriptions : Model -> Sub Message
+subscriptions model =
+    UploadPorts.receiveFile DidReceiveBase64BodyMessage
