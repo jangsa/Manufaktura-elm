@@ -12,6 +12,7 @@ projectDecoder =
         ProjectDetail
         |> required "id" Decode.string
         |> required "name" Decode.string
+        |> required "description" Decode.string
         |> required "created" Decode.string
         |> required "batch" (Decode.list jobDecoder)
 
@@ -22,6 +23,7 @@ jobDecoder =
         Job
         |> required "index" Decode.string
         |> required "name" Decode.string
+        |> required "description" Decode.string
         |> required "inputUrl" Decode.string
         |> required "outputUrl" Decode.string
 
@@ -31,6 +33,7 @@ projectEncoder detail =
     Encode.object
         [ ( "id", Encode.string detail.id )
         , ( "name", Encode.string detail.name )
+        , ( "description", Encode.string detail.description )
         , ( "created", Encode.string detail.created )
         , ( "batch", Encode.list <| List.map (\job -> jobEncoder job) detail.batch )
         ]
@@ -41,6 +44,7 @@ jobEncoder job =
     Encode.object
         [ ( "index", Encode.string job.index )
         , ( "name", Encode.string job.name )
+        , ( "description", Encode.string job.description )
         , ( "inputUrl", Encode.string job.inputUrl )
         , ( "outputUrl", Encode.string job.outputUrl )
         ]

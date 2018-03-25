@@ -11,7 +11,7 @@ import Project.Detail.Messages exposing (Message(..))
 
 matchList : List (Parser (Page -> a) a)
 matchList =
-    [ UrlParser.map UpdatePage <| (s "projects" </> string)
+    [ UrlParser.map UpdatePage <| s "projects" </> string
     ]
 
 

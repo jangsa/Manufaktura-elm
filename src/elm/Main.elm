@@ -50,8 +50,8 @@ initModel page =
 matchList : List (Parser (Page -> a) a)
 matchList =
     [ UrlParser.map HomePage top
-    , UrlParser.map HomePage <| (s "home")
-    , UrlParser.map GitBucketPage <| (s "gitbucket")
+    , UrlParser.map HomePage <| s "home"
+    , UrlParser.map GitBucketPage <| s "gitbucket"
     ]
 
 

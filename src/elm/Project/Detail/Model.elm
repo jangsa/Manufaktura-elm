@@ -9,6 +9,7 @@ type Page
 type alias Job =
     { index : String
     , name : String
+    , description : String
     , inputUrl : String
     , outputUrl : String
     }
@@ -23,6 +24,7 @@ type alias Base64File =
 type alias ProjectDetail =
     { id : String
     , name : String
+    , description : String
     , created : String
     , batch : List Job
     }
@@ -32,6 +34,7 @@ initProjectDetail : ProjectDetail
 initProjectDetail =
     { id = ""
     , name = ""
+    , description = ""
     , created = ""
     , batch = []
     }

@@ -1,6 +1,5 @@
 module Project.Network exposing (..)
 
-import List.Extra
 import RemoteData
 import Http
 import Utility.Misc as Util
@@ -19,17 +18,21 @@ fetchProjects =
         |> Cmd.map DidFetchListMessage
 
 
-createProject : String -> List String -> Cmd Message
-createProject projectName batchNames =
+createProject : String -> String -> List ( String, String ) -> Cmd Message
+createProject projectName projectDescription batchProfile =
     let
-        indexedBatch =
-            List.Extra.zip (List.map toString (List.range 1 <| List.length batchNames)) batchNames
+        indexedBatchProfile =
+            List.indexedMap (,) batchProfile
 
-        batch =
-            List.map (\( i, n ) -> Job i n "" "") indexedBatch
+        jobs =
+            List.map
+                (\( i, ( batchName, batchDescription ) ) ->
+                    Job (toString i) batchName batchDescription "" ""
+                )
+                indexedBatchProfile
 
         info =
-            ProjectDetail "" projectName "" batch
+            ProjectDetail "" projectName projectDescription "" jobs
     in
         Http.post projectsAPI (projectEncoder info |> Http.jsonBody) projectDecoder
             |> RemoteData.sendRequest
