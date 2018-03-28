@@ -21,11 +21,21 @@ jobDecoder : Decode.Decoder Job
 jobDecoder =
     decode
         Job
-        |> required "index" Decode.string
+        |> required "index" Decode.int
         |> required "name" Decode.string
         |> required "description" Decode.string
         |> required "inputUrl" Decode.string
         |> required "outputUrl" Decode.string
+
+
+projectEncoderForRegister : ProjectDetail -> Encode.Value
+projectEncoderForRegister detail =
+    Encode.object
+        [ ( "name", Encode.string detail.name )
+        , ( "description", Encode.string detail.description )
+        , ( "created", Encode.string detail.created )
+        , ( "batch", Encode.list <| List.map (\job -> jobEncoder job) detail.batch )
+        ]
 
 
 projectEncoder : ProjectDetail -> Encode.Value
@@ -42,7 +52,7 @@ projectEncoder detail =
 jobEncoder : Job -> Encode.Value
 jobEncoder job =
     Encode.object
-        [ ( "index", Encode.string job.index )
+        [ ( "index", Encode.int job.index )
         , ( "name", Encode.string job.name )
         , ( "description", Encode.string job.description )
         , ( "inputUrl", Encode.string job.inputUrl )

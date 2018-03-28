@@ -1,13 +1,36 @@
 module Project.Detail.Model exposing (..)
 
+import UrlParser exposing (..)
+import Navigation exposing (Location)
+import RemoteData exposing (..)
+
 
 type Page
-    = NoSuchPage
-    | UpdatePage String
+    = DefaultPage
+    | WorkbookPage String
+
+
+matchList : List (Parser (Page -> a) a)
+matchList =
+    [ UrlParser.map WorkbookPage <| UrlParser.s "projects" </> string
+    ]
+
+
+matchers : Parser (Page -> a) a
+matchers =
+    oneOf
+        matchList
+
+
+parseLocation : Location -> Page
+parseLocation location =
+    Maybe.withDefault
+        DefaultPage
+        (UrlParser.parseHash matchers location)
 
 
 type alias Job =
-    { index : String
+    { index : Int
     , name : String
     , description : String
     , inputUrl : String
@@ -41,11 +64,15 @@ initProjectDetail =
 
 
 type alias Model =
-    { projectDetail : ProjectDetail
+    { page : Page
+    , detailAsync : WebData ProjectDetail
+    , detail : ProjectDetail
     }
 
 
 initModel : Model
 initModel =
-    { projectDetail = initProjectDetail
+    { page = DefaultPage
+    , detailAsync = NotAsked
+    , detail = initProjectDetail
     }

@@ -3,55 +3,85 @@ module Main exposing (main)
 import Maybe exposing (withDefault)
 import Navigation exposing (program, Location)
 import UrlParser exposing (..)
-import Html
-import Html.Attributes
-import View.Structures
-import View.Navigator
-import Project.Main
-import Project.Model
-import Project.Messages
-import Project.Detail.Main
-import Project.Detail.Model
-import Project.Detail.Messages
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Common.View.Navigator exposing (..)
+import Message exposing (..)
+import Model exposing (..)
+import Project.Update as ProjectUpdate
+import Project.Model as ProjectModel
+import Project.Message as ProjectMessage
+import Project.View as ProjectView
+import Project.Detail.View as DetailView
+import Project.Detail.Model as DetailModel
+import Project.Detail.Message as DetailMessage
+import Project.Detail.Update as DetailUpdate
 
 
-type Message
-    = NoMessage
-    | LocationChangeMessage Location
-    | ProjectMessage Project.Messages.Message
-    | ProjectDetailMessage Project.Detail.Messages.Message
+homePage : Html message
+homePage =
+    article
+        []
+        [ p
+            [ class "h2" ]
+            [ text "Welcome to Manufaktura!" ]
+        , p
+            []
+            [ text "Manufaktura is a web-based helper that expedites your boring works." ]
+        ]
 
 
-type Page
-    = NoSuchPage
-    | HomePage
-    | ProjectPage Project.Model.Page
-    | ProjectDetailPage Project.Detail.Model.Page
-    | GitBucketPage
+defaultPage : Html message
+defaultPage =
+    article
+        []
+        [ p
+            [ class "h2 red" ]
+            [ text "404 NOT FOUND" ]
+        ]
 
 
-type alias Model =
-    { page : Page
-    , navigatorState : View.Structures.NavigatorState
-    , projectModel : Project.Model.Model
-    , projectDetailModel : Project.Detail.Model.Model
-    }
+view : Model -> Html Msg
+view model =
+    let
+        mainContents =
+            case model.page of
+                HomePage ->
+                    [ homePage ]
+
+                ProjectsPage page ->
+                    [ Html.map ProjectsMsg <| ProjectView.view model.projectsState ]
+
+                ProjectDetailPage page ->
+                    [ Html.map ProjectDetailMsg <| DetailView.view model.projectDetailState ]
+
+                DefaultPage ->
+                    [ defaultPage ]
+
+        sideContents =
+            [ text "side contents" ]
+    in
+        frame
+            initNavigatorState
+            (navigator
+                "Manufaktura"
+                (simpleMenuItems [ "home", "projects", "gitbucket" ])
+            )
+            mainContents
+            sideContents
 
 
-initModel : Page -> Model
-initModel page =
-    { page = page
-    , navigatorState = View.Structures.initNavigatorState
-    , projectModel = Project.Model.initModel
-    , projectDetailModel = Project.Detail.Model.initModel
-    }
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 matchList : List (Parser (Page -> a) a)
 matchList =
     [ UrlParser.map HomePage top
-    , UrlParser.map HomePage <| s "home"
-    , UrlParser.map GitBucketPage <| s "gitbucket"
+    , UrlParser.map HomePage <| UrlParser.s "home"
+
+    --  , UrlParser.map GitBucketPage <| s "gitbucket"
     ]
 
 
@@ -59,149 +89,98 @@ matchers : Parser (Page -> a) a
 matchers =
     oneOf
         (matchList
-            ++ (List.map (\m -> UrlParser.map ProjectPage m) Project.Main.matchList)
-            ++ (List.map (\m -> UrlParser.map ProjectDetailPage m) Project.Detail.Main.matchList)
+            ++ (List.map (\m -> UrlParser.map ProjectsPage m) ProjectModel.matchList)
+            ++ (List.map (\m -> UrlParser.map ProjectDetailPage m) DetailModel.matchList)
         )
 
 
 parseLocation : Location -> Page
 parseLocation location =
-    withDefault
-        NoSuchPage
+    Maybe.withDefault
+        DefaultPage
         (UrlParser.parseHash matchers location)
 
 
-updateSub : Model -> Page -> Location -> ( Model, Cmd Message )
-updateSub model newPage location =
-    case newPage of
-        ProjectPage _ ->
-            let
-                ( newProjectModel, newProjectMessage ) =
-                    Project.Main.update
-                        (Project.Messages.LocationChangeMessage location)
-                        model.projectModel
-            in
-                ( { model
-                    | projectModel = newProjectModel
-                  }
-                , Cmd.map ProjectMessage newProjectMessage
-                )
-
-        ProjectDetailPage _ ->
-            let
-                ( newProjectDetailModel, newProjectDetailMessage ) =
-                    Project.Detail.Main.update
-                        (Project.Detail.Messages.LocationChangeMessage location)
-                        model.projectDetailModel
-            in
-                ( { model
-                    | projectDetailModel = newProjectDetailModel
-                  }
-                , Cmd.map ProjectDetailMessage newProjectDetailMessage
-                )
-
-        _ ->
-            ( model, Cmd.none )
-
-
-update : Message -> Model -> ( Model, Cmd Message )
-update message model =
-    case message of
-        NoMessage ->
-            ( model, Cmd.none )
-
-        LocationChangeMessage location ->
-            let
-                newPage =
-                    parseLocation location
-
-                modelWithNewPage =
-                    { model | page = newPage }
-            in
-                updateSub modelWithNewPage newPage location
-
-        ProjectMessage projectMessage ->
-            let
-                ( newProjectModel, newProjectMessage ) =
-                    Project.Main.update projectMessage model.projectModel
-            in
-                ( { model | projectModel = newProjectModel }, Cmd.none )
-
-        ProjectDetailMessage projectDetailMessage ->
-            let
-                ( newProjectDetailModel, newProjectDetailMessage ) =
-                    Project.Detail.Main.update projectDetailMessage model.projectDetailModel
-            in
-                ( { model | projectDetailModel = newProjectDetailModel }, Cmd.none )
-
-
-subscriptions : Model -> Sub Message
-subscriptions model =
-    Sub.none
-
-
-home : Html.Html message
-home =
-    Html.article
-        []
-        [ Html.p
-            [ Html.Attributes.class "h2" ]
-            [ Html.text "Welcome to Manufaktura!" ]
-        , Html.p
-            []
-            [ Html.text "Manufaktura is a web-based helper that expedites your boring works." ]
-        ]
-
-
-view : Model -> Html.Html Message
-view model =
+changeLocation : Msg -> Model -> Location -> ( Model, Cmd Msg )
+changeLocation msg model location =
     let
-        mainContents =
-            case model.page of
-                NoSuchPage ->
-                    [ View.Structures.default ]
-
-                HomePage ->
-                    [ home ]
-
-                ProjectPage _ ->
-                    [ Html.map
-                        ProjectMessage
-                        (Project.Main.view model.projectModel)
-                    ]
-
-                ProjectDetailPage _ ->
-                    [ Html.map
-                        ProjectDetailMessage
-                        (Project.Detail.Main.view model.projectDetailModel)
-                    ]
-
-                GitBucketPage ->
-                    [ Html.text "GitBucket Page" ]
-
-        sideContents =
-            [ Html.text "side contents" ]
+        newPage =
+            parseLocation location
     in
-        View.Structures.frame
-            model.navigatorState
-            (View.Navigator.simpleMenuItems
-                [ "home", "projects", "gitbucket" ]
-                |> View.Navigator.navigator
-                    "Manufaktura"
-            )
-            mainContents
-            sideContents
+        case newPage of
+            ProjectsPage _ ->
+                let
+                    ( newProjectsState, newProjectsCommand ) =
+                        ProjectUpdate.update
+                            (ProjectMessage.ChangeLocationMsg location)
+                            model.projectsState
+                in
+                    ( { model
+                        | page = newPage
+                        , projectsState = newProjectsState
+                      }
+                    , Cmd.map ProjectsMsg newProjectsCommand
+                    )
+
+            ProjectDetailPage _ ->
+                let
+                    ( newDetailState, newDetailCommand ) =
+                        DetailUpdate.update
+                            (DetailMessage.ChangeLocationMsg location)
+                            model.projectDetailState
+                in
+                    ( { model
+                        | page = newPage
+                        , projectDetailState = newDetailState
+                      }
+                    , Cmd.map ProjectDetailMsg newDetailCommand
+                    )
+
+            _ ->
+                ( { model | page = newPage }, Cmd.none )
 
 
-init : Location -> ( Model, Cmd Message )
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        NoMsg ->
+            ( model, Cmd.none )
+
+        ChangeLocationMsg location ->
+            changeLocation msg model location
+
+        ProjectsMsg projectMsg ->
+            let
+                ( newProjectsModel, newProjectsCommand ) =
+                    ProjectUpdate.update
+                        projectMsg
+                        model.projectsState
+            in
+                ( { model | projectsState = newProjectsModel }
+                , Cmd.map ProjectsMsg newProjectsCommand
+                )
+
+        ProjectDetailMsg projectDetailMsg ->
+            let
+                ( newDetailModel, newDetailCommand ) =
+                    DetailUpdate.update
+                        projectDetailMsg
+                        model.projectDetailState
+            in
+                ( { model | projectDetailState = newDetailModel }
+                , Cmd.map ProjectDetailMsg newDetailCommand
+                )
+
+
+init : Location -> ( Model, Cmd Msg )
 init location =
     ( parseLocation location |> initModel, Cmd.none )
 
 
-main : Program Never Model Message
+main : Program Never Model Msg
 main =
-    program
-        LocationChangeMessage
+    Navigation.program
+        ChangeLocationMsg
         { init = init
         , update = update
         , subscriptions = subscriptions

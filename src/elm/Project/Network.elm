@@ -1,57 +1,87 @@
 module Project.Network exposing (..)
 
-import RemoteData
 import Http
-import Utility.Misc as Util
-import Project.Json exposing (..)
-import Project.Messages exposing (..)
-import Project.Model as ProjectModel
-import Project.Detail.Model exposing (..)
-import Project.Detail.Network exposing (projectsAPI, projectAPI)
-import Project.Detail.Json exposing (..)
+import RemoteData exposing (..)
+import Project.Model exposing (..)
+import Project.Message exposing (..)
+import Project.Json exposing (projectsDecoder)
+import Project.Detail.Model exposing (ProjectDetail, Job)
+import Project.Detail.Json exposing (projectDecoder, projectEncoderForRegister)
+import Project.Detail.Network exposing (projectsAPI)
 
 
-fetchProjects : Cmd Message
+fetchProjects : Cmd Msg
 fetchProjects =
     Http.get projectsAPI projectsDecoder
         |> RemoteData.sendRequest
-        |> Cmd.map DidFetchListMessage
+        |> Cmd.map FetchAfterMsg
 
 
-createProject : String -> String -> List ( String, String ) -> Cmd Message
-createProject projectName projectDescription batchProfile =
+filterProjects : List ProjectDetail -> String -> List ProjectDetail
+filterProjects projects keywords =
     let
-        indexedBatchProfile =
-            List.indexedMap (,) batchProfile
-
-        jobs =
-            List.map
-                (\( i, ( batchName, batchDescription ) ) ->
-                    Job (toString i) batchName batchDescription "" ""
+        n2nMatch matcher scope =
+            List.concatMap
+                (\s ->
+                    List.map
+                        (\m ->
+                            s == m
+                        )
+                        matcher
                 )
-                indexedBatchProfile
+                scope
+                |> List.foldr
+                    (||)
+                    False
 
-        info =
-            ProjectDetail "" projectName projectDescription "" jobs
-    in
-        Http.post projectsAPI (projectEncoder info |> Http.jsonBody) projectDecoder
-            |> RemoteData.sendRequest
-            |> Cmd.map DidCreateMessage
+        filterer detail =
+            n2nMatch
+                (String.toLower >> String.split " " <| keywords)
+                (List.map
+                    String.toLower
+                    [ detail.id, detail.name, detail.created ]
+                )
 
-
-filterProjects : ProjectModel.Model -> String -> ( ProjectModel.Model, Cmd Message )
-filterProjects model keyword =
-    let
         filtered =
             List.filter
-                (\detail ->
-                    Util.allInclusive
-                        (String.toLower >> Util.whiteSplit <| keyword)
-                        (List.map
-                            String.toLower
-                            [ detail.id, detail.name, detail.created ]
-                        )
-                )
-                model.projects
+                filterer
+                projects
     in
-        ( { model | projectsFiltered = filtered }, Cmd.none )
+        filtered
+
+
+createProject : CreationState -> Cmd Msg
+createProject creationState =
+    let
+        batch =
+            List.map
+                (\( i, ( n, d ) ) ->
+                    Job i n d "" ""
+                )
+                creationState.batch
+
+        projectDetail =
+            ProjectDetail
+                ""
+                creationState.name
+                creationState.description
+                ""
+                batch
+    in
+        (Http.post projectsAPI
+            (Http.jsonBody <| projectEncoderForRegister projectDetail)
+            projectDecoder
+        )
+            |> RemoteData.sendRequest
+            |> Cmd.map CreateAfterMsg
+
+
+
+{-
+   Http.post
+       "http://localhost:4000/projects/"
+       Http.emptyBody
+       (Decode.succeed "foo")
+       |> sendRequest
+       |> Cmd.map CreateAfterMsg
+-}

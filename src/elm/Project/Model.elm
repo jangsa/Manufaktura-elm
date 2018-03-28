@@ -1,50 +1,69 @@
 module Project.Model exposing (..)
 
-import RemoteData exposing (WebData, RemoteData(..))
-import Project.Messages exposing (..)
+import RemoteData exposing (..)
+import Navigation exposing (Location)
+import UrlParser exposing (..)
+import Common.View.Form exposing (OverlayState)
 import Project.Detail.Model as DetailModel
-import View.Forms as Forms
-import Array exposing (..)
 
 
 type Page
-    = NoSuchPage
-    | Home
-    | Create
-    | Delete
+    = DefaultPage
+    | HomePage
 
 
-type alias CreationFormState =
+matchList : List (Parser (Page -> a) a)
+matchList =
+    [ UrlParser.map HomePage <| UrlParser.s "projects"
+    , UrlParser.map HomePage <| UrlParser.s "projects" </> top
+    ]
+
+
+matchers : Parser (Page -> a) a
+matchers =
+    oneOf
+        matchList
+
+
+parseLocation : Location -> Page
+parseLocation location =
+    Maybe.withDefault
+        DefaultPage
+        (UrlParser.parseHash matchers location)
+
+
+type alias CreationState =
     { name : String
     , description : String
-    , batch : Array ( Int, ( String, String ) )
+    , batch : List ( Int, ( String, String ) )
     }
 
 
-initCreationFormState : CreationFormState
-initCreationFormState =
+initCreationState : CreationState
+initCreationState =
     { name = ""
     , description = ""
-    , batch = fromList [ ( 1, ( "", "" ) ) ]
+    , batch =
+        [ ( 1, ( "", "" ) ) ]
     }
 
 
 type alias Model =
-    { projectsAsync : WebData (List DetailModel.ProjectDetail)
+    { page : Page
+    , projectsAsync : WebData (List DetailModel.ProjectDetail)
     , projects : List DetailModel.ProjectDetail
     , projectsFiltered : List DetailModel.ProjectDetail
-    , filterFormState : Forms.FormState Message
-    , overlayState : Forms.OverlayState
-    , creationFormState : CreationFormState
+    , overlayState : OverlayState
+    , creationState : CreationState
     }
 
 
 initModel : Model
 initModel =
-    { projectsAsync = NotAsked
+    { page = DefaultPage
+    , projectsAsync = NotAsked
     , projects = []
     , projectsFiltered = []
-    , filterFormState = Forms.initFormState
     , overlayState = False
-    , creationFormState = initCreationFormState
+    , creationState = initCreationState
     }
