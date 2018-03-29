@@ -27,7 +27,7 @@ filterProjects projects keywords =
                         |> List.foldr
                             (\l ->
                                 \r ->
-                                    if l || r then
+                                    if l then
                                         True
                                     else
                                         l || r
