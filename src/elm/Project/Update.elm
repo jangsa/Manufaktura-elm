@@ -51,7 +51,7 @@ update msg model =
         FilterMsg keywords ->
             ( { model
                 | projectsFiltered =
-                    filterProjects model.projectsFiltered keywords
+                    filterProjects model.projects keywords
               }
             , Cmd.none
             )

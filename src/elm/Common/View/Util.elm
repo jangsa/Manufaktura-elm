@@ -9,3 +9,11 @@ displayIf cond body =
         body
     else
         text ""
+
+
+displayTernary : Bool -> Html msg -> Html msg -> Html msg
+displayTernary cond trueBody falseBody =
+    if cond then
+        trueBody
+    else
+        falseBody

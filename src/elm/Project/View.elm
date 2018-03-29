@@ -45,7 +45,9 @@ projectsTable model =
                             (\v ->
                                 ( []
                                 , [ a
-                                        [ href ("./#/projects/" ++ detail.id) ]
+                                        [ class "black"
+                                        , href ("./#/projects/" ++ detail.id)
+                                        ]
                                         [ text v ]
                                   ]
                                 )
@@ -93,7 +95,11 @@ view model =
             simpleTextfield ChangeDescriptionMsg model.creationState.description ""
 
         addJobButton =
-            simpleButton AddJobMsg "add job"
+            div
+                [ class "col col-right h4 border"
+                , onClick AddJobMsg
+                ]
+                [ a [ class "black btn" ] [ text "Add Job" ] ]
 
         batchSectionHeader =
             div
@@ -111,7 +117,10 @@ view model =
             overlay
                 model
                 (simpleFormFrame
-                    "Launching New Project"
+                    [ p
+                        [ class "h3" ]
+                        [ text "Launching New Project" ]
+                    ]
                     [ nameSectionHeader
                     , nameField
                     , descriptionSectionHeader

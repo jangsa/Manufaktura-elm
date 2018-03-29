@@ -1,5 +1,6 @@
 module Project.Detail.Model exposing (..)
 
+import Dict exposing (..)
 import UrlParser exposing (..)
 import Navigation exposing (Location)
 import RemoteData exposing (..)
@@ -63,10 +64,38 @@ initProjectDetail =
     }
 
 
+type alias JobState =
+    { dragover : Bool
+    , awaitingRemoteDone : Bool
+    }
+
+
+initJobState : JobState
+initJobState =
+    { dragover = False
+    , awaitingRemoteDone = False
+    }
+
+
+dragoverJobState : JobState
+dragoverJobState =
+    { dragover = True
+    , awaitingRemoteDone = False
+    }
+
+
+awaitingJobState : JobState
+awaitingJobState =
+    { dragover = False
+    , awaitingRemoteDone = True
+    }
+
+
 type alias Model =
     { page : Page
     , detailAsync : WebData ProjectDetail
     , detail : ProjectDetail
+    , jobStateDict : Dict Int JobState
     }
 
 
@@ -75,4 +104,5 @@ initModel =
     { page = DefaultPage
     , detailAsync = NotAsked
     , detail = initProjectDetail
+    , jobStateDict = empty
     }

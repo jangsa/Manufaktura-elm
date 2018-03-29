@@ -20,19 +20,22 @@ fetchProjects =
 filterProjects : List ProjectDetail -> String -> List ProjectDetail
 filterProjects projects keywords =
     let
-        n2nMatch matcher scope =
-            List.concatMap
-                (\s ->
-                    List.map
-                        (\m ->
-                            s == m
-                        )
-                        matcher
+        n2nMatch keys vals =
+            List.map
+                (\k ->
+                    List.map (\v -> String.contains k v) vals
+                        |> List.foldr
+                            (\l ->
+                                \r ->
+                                    if l || r then
+                                        True
+                                    else
+                                        l || r
+                            )
+                            False
                 )
-                scope
-                |> List.foldr
-                    (||)
-                    False
+                keys
+                |> List.foldl (&&) True
 
         filterer detail =
             n2nMatch

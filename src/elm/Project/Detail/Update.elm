@@ -1,6 +1,8 @@
 module Project.Detail.Update exposing (..)
 
+import Dict exposing (..)
 import RemoteData exposing (..)
+import Navigation exposing (load)
 import Project.Detail.Model exposing (..)
 import Project.Detail.Message exposing (..)
 import Project.Detail.Network exposing (fetchProject)
@@ -37,3 +39,52 @@ update msg model =
 
                 _ ->
                     ( { model | detailAsync = response }, Cmd.none )
+
+        DownloadInputFileMsg index ->
+            let
+                targetJob =
+                    case
+                        List.head
+                            (List.filter
+                                (\job -> job.index == index)
+                                model.detail.batch
+                            )
+                    of
+                        Just j ->
+                            j
+
+                        Nothing ->
+                            Job -1 "" "" "" ""
+
+                inputUrl =
+                    targetJob.inputUrl
+            in
+                if inputUrl /= "" then
+                    ( model, load inputUrl )
+                else
+                    ( model, Cmd.none )
+
+        DragoverMsg index ->
+            let
+                newDict =
+                    Dict.insert index dragoverJobState model.jobStateDict
+            in
+                ( { model | jobStateDict = newDict }, Cmd.none )
+
+        DragleaveMsg index ->
+            let
+                -- todo: suppress messages while awaiting remote done
+                newDict =
+                    Dict.remove index model.jobStateDict
+            in
+                ( { model | jobStateDict = newDict }, Cmd.none )
+
+        DropMsg index ->
+            let
+                newDict =
+                    Dict.insert index awaitingJobState model.jobStateDict
+            in
+                ( { model | jobStateDict = newDict }, Cmd.none )
+
+        RemoteDoneMsg index ->
+            ( model, Cmd.none )

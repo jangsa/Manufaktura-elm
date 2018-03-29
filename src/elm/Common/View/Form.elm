@@ -15,19 +15,55 @@ simpleButton onClickMsg buttonLabel =
         [ text buttonLabel ]
 
 
-dropfield : Attribute msg -> List (Html msg) -> Html msg
-dropfield attributes children =
-    div
-        [ style
-            [ ( "border", "2px dashed #ccc" )
-            , ( "width", "80%" )
-            , ( "min-height", "100px" )
-            ]
-        ]
-        [ p
-            [ class "gray center m4" ]
-            [ text "drop file here" ]
-        ]
+dropfield : msg -> msg -> msg -> List (Attribute msg) -> List (Html msg) -> Html msg
+dropfield dragoverMsg dragleaveMsg dropMsg attributes children =
+    let
+        dropfieldStyle =
+            (style
+                [ ( "border", "2px dashed #ccc" )
+                , ( "width", "80%" )
+                , ( "min-height", "100px" )
+                ]
+            )
+
+        onDragover msg =
+            onWithOptions
+                "dragover"
+                { preventDefault = True
+                , stopPropagation = False
+                }
+                (Decode.succeed msg)
+
+        onDragleave msg =
+            onWithOptions
+                "dragleave"
+                { preventDefault = True
+                , stopPropagation = False
+                }
+                (Decode.succeed msg)
+
+        onDrop msg =
+            onWithOptions
+                "drop"
+                { preventDefault = True
+                , stopPropagation = False
+                }
+                (Decode.succeed msg)
+    in
+        div
+            ([ dropfieldStyle
+             , onDragover dragoverMsg
+             , onDragleave dragleaveMsg
+             , onDrop dropMsg
+             ]
+                ++ attributes
+            )
+            ((p
+                [ class "gray center m4" ]
+                [ text "drop file here" ]
+             )
+                :: children
+            )
 
 
 type alias OverlayState =
@@ -37,7 +73,9 @@ type alias OverlayState =
 overlay : message -> message -> List (Html message) -> Html message
 overlay openMsg closeMsg children =
     div
-        [ class "fixed img svg top-0 left-0 bottom-0 right-0 bg-darken-1"
+        [ class "overflow-auto fixed img svg top-0 left-0 bottom-0 right-0 bg-darken-1"
+
+        --, style [ ( "min-height", "min-content" ) ]
         , onClick closeMsg
         ]
         [ div
@@ -185,18 +223,16 @@ extensibleDuo msg1 style1 msg2 style2 seeds msgGen =
         ]
 
 
-simpleFormFrame : String -> List (Html msg) -> List (Html msg)
+simpleFormFrame : List (Html msg) -> List (Html msg) -> List (Html msg)
 simpleFormFrame title children =
     [ div
         [ class "container" ]
-        [ p
-            [ class "h3"
-            ]
-            [ text title ]
-        , Html.form
-            []
-            children
-        ]
+        (title
+            ++ [ Html.form
+                    []
+                    children
+               ]
+        )
     ]
 
 

@@ -10,3 +10,8 @@ type Msg
     | ChangeLocationMsg Location
     | FetchMsg String
     | FetchAfterMsg (WebData ProjectDetail)
+    | DownloadInputFileMsg Int
+    | DragoverMsg Int
+    | DragleaveMsg Int
+    | DropMsg Int
+    | RemoteDoneMsg Int
