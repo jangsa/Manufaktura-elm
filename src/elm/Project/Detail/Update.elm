@@ -9,11 +9,6 @@ import Project.Detail.Message exposing (..)
 import Project.Detail.Network exposing (fetchProject)
 
 
-plus1 : Int -> Int
-plus1 a =
-    Native.FileSupporter.plus1 a
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of

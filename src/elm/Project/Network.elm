@@ -27,7 +27,7 @@ filterProjects projects keywords =
                         |> List.foldr (||) False
                 )
                 keys
-                |> List.foldl (&&) True
+                |> List.foldr (&&) True
 
         filterer detail =
             n2nMatch

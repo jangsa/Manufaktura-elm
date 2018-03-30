@@ -3,10 +3,6 @@
 
 var _jangsa$manufaktura$Native_FileSupporter = function () {
 
-  function plus1 (v) {
-    return v + 1;
-  }
-
   function subscribeFileDropOn (elementID, options, model) {
 
     if(!model.loaded) {
@@ -32,7 +28,6 @@ var _jangsa$manufaktura$Native_FileSupporter = function () {
   }
 
   return {
-    plus1 : plus1,
     subscribeFileDropOn : F3(subscribeFileDropOn)
   }
 }();
