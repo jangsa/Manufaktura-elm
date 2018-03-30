@@ -15,23 +15,17 @@ var app = Elm.Main.embed(mountNode);
 /*
 app.ports.readFile.subscribe(function (id) {
  var node = document.getElementById(id);
-
  if (node === null) return;
-
  var file = node.files[0];
  var reader = new FileReader();
-
  reader.onload = (function(event) {
    var base64encoded = event.target.result;
    var portData = {
      base64Body : base64encoded,
      filename : file.name
    };
-
    app.ports.receiveFile.send(portData);
  });
-
  reader.readAsDataURL(file);
 });
 */
-

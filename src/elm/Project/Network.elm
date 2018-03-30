@@ -24,15 +24,7 @@ filterProjects projects keywords =
             List.map
                 (\k ->
                     List.map (\v -> String.contains k v) vals
-                        |> List.foldr
-                            (\l ->
-                                \r ->
-                                    if r then
-                                        True
-                                    else
-                                        l || r
-                            )
-                            False
+                        |> List.foldr (||) False
                 )
                 keys
                 |> List.foldl (&&) True
@@ -77,14 +69,3 @@ createProject creationState =
         )
             |> RemoteData.sendRequest
             |> Cmd.map CreateAfterMsg
-
-
-
-{-
-   Http.post
-       "http://localhost:4000/projects/"
-       Http.emptyBody
-       (Decode.succeed "foo")
-       |> sendRequest
-       |> Cmd.map CreateAfterMsg
--}

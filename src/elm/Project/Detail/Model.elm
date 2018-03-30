@@ -96,6 +96,7 @@ type alias Model =
     , detailAsync : WebData ProjectDetail
     , detail : ProjectDetail
     , jobStateDict : Dict Int JobState
+    , loaded : Bool
     }
 
 
@@ -105,4 +106,5 @@ initModel =
     , detailAsync = NotAsked
     , detail = initProjectDetail
     , jobStateDict = empty
+    , loaded = False
     }

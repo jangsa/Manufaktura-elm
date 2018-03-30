@@ -116,6 +116,7 @@ view model =
                                         (DragleaveMsg b.index)
                                         (DropMsg b.index)
                                         [ onClick (DownloadInputFileMsg b.index)
+                                        , id ("dropfield-" ++ (toString b.index))
                                         , (case Dict.get b.index model.jobStateDict of
                                             Just state ->
                                                 if state.dragover then
@@ -129,18 +130,37 @@ view model =
                                         ]
                                         []
                                     , div
-                                        []
-                                        [ a
-                                            (if b.outputUrl /= "" then
-                                                [ class "btn btn-outline"
-                                                , href b.outputUrl
-                                                ]
-                                             else
-                                                [ class "btn btn-outline gray"
+                                        [ class "clearfix" ]
+                                        [ div
+                                            [ class "col sm-col-4" ]
+                                            [ a
+                                                (if b.outputUrl /= "" then
+                                                    [ class "btn btn-outline block img center"
+                                                    , href b.outputUrl
+                                                    ]
+                                                 else
+                                                    [ class "btn btn-outline block img center gray"
+                                                    , style [ ( "pointer-events", "none" ) ]
+                                                    ]
+                                                )
+                                                [ text "download last" ]
+                                            ]
+                                        , div
+                                            [ class "col sm-col-4" ]
+                                            [ a
+                                                [ class "btn btn-outline block img center gray"
                                                 , style [ ( "pointer-events", "none" ) ]
                                                 ]
-                                            )
-                                            [ text "download result" ]
+                                                [ text "download specific" ]
+                                            ]
+                                        , div
+                                            [ class "col sm-col-4" ]
+                                            [ a
+                                                [ class "btn btn-outline block img center gray"
+                                                , style [ ( "pointer-events", "none" ) ]
+                                                ]
+                                                [ text "download all" ]
+                                            ]
                                         ]
                                     ]
                             )

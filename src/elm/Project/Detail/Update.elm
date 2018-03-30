@@ -3,9 +3,15 @@ module Project.Detail.Update exposing (..)
 import Dict exposing (..)
 import RemoteData exposing (..)
 import Navigation exposing (load)
+import Common.Native.File exposing (subscribeFileDropOn)
 import Project.Detail.Model exposing (..)
 import Project.Detail.Message exposing (..)
 import Project.Detail.Network exposing (fetchProject)
+
+
+plus1 : Int -> Int
+plus1 a =
+    Native.FileSupporter.plus1 a
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -68,8 +74,31 @@ update msg model =
             let
                 newDict =
                     Dict.insert index dragoverJobState model.jobStateDict
+
+                loop m jobs =
+                    case jobs of
+                        job :: jobsTail ->
+                            let
+                                m_ =
+                                    subscribeFileDropOn
+                                        ("dropfield-" ++ (toString job.index))
+                                        { preventDefault = True
+                                        , stopPropagation = False
+                                        }
+                                        m
+                            in
+                                loop m_ jobsTail
+
+                        [] ->
+                            m
+
+                modelWithNewDict =
+                    { model | jobStateDict = newDict }
+
+                newModel =
+                    loop modelWithNewDict modelWithNewDict.detail.batch
             in
-                ( { model | jobStateDict = newDict }, Cmd.none )
+                ( newModel, Cmd.none )
 
         DragleaveMsg index ->
             let

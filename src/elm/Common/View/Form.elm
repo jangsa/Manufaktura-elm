@@ -21,7 +21,7 @@ dropfield dragoverMsg dragleaveMsg dropMsg attributes children =
         dropfieldStyle =
             (style
                 [ ( "border", "2px dashed #ccc" )
-                , ( "width", "80%" )
+                , ( "width", "100%" )
                 , ( "min-height", "100px" )
                 ]
             )
