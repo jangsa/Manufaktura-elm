@@ -6,7 +6,7 @@ import Project.Model exposing (..)
 import Project.Message exposing (..)
 import Project.Json exposing (projectsDecoder)
 import Project.Detail.Model exposing (ProjectDetail, Job)
-import Project.Detail.Json exposing (projectDecoder, projectEncoderForRegister)
+import Project.Detail.Json exposing (projectDecoder, projectEncoderUpstream)
 import Project.Detail.Network exposing (projectsAPI)
 
 
@@ -51,7 +51,7 @@ createProject creationState =
         batch =
             List.map
                 (\( i, ( n, d ) ) ->
-                    Job i n d "" ""
+                    Job i n d "" "" [] [] "" ""
                 )
                 creationState.batch
 
@@ -64,7 +64,7 @@ createProject creationState =
                 batch
     in
         (Http.post projectsAPI
-            (Http.jsonBody <| projectEncoderForRegister projectDetail)
+            (Http.jsonBody <| projectEncoderUpstream projectDetail)
             projectDecoder
         )
             |> RemoteData.sendRequest

@@ -134,9 +134,9 @@ view model =
                                         [ div
                                             [ class "col sm-col-4" ]
                                             [ a
-                                                (if b.outputUrl /= "" then
+                                                (if b.lastOutputUrl /= "" then
                                                     [ class "btn btn-outline block img center"
-                                                    , href b.outputUrl
+                                                    , href b.lastOutputUrl
                                                     ]
                                                  else
                                                     [ class "btn btn-outline block img center gray"
@@ -148,17 +148,33 @@ view model =
                                         , div
                                             [ class "col sm-col-4" ]
                                             [ a
-                                                [ class "btn btn-outline block img center gray"
-                                                , style [ ( "pointer-events", "none" ) ]
-                                                ]
+                                                (if b.outputUrls /= [] then
+                                                    [ class "btn btn-outline block img center"
+
+                                                    -- todo
+                                                    , href ""
+                                                    ]
+                                                 else
+                                                    [ class "btn btn-outline block img center gray"
+                                                    , style [ ( "pointer-events", "none" ) ]
+                                                    ]
+                                                )
                                                 [ text "download specific" ]
                                             ]
                                         , div
                                             [ class "col sm-col-4" ]
                                             [ a
-                                                [ class "btn btn-outline block img center gray"
-                                                , style [ ( "pointer-events", "none" ) ]
-                                                ]
+                                                (if b.outputUrls /= [] then
+                                                    [ class "btn btn-outline block img center"
+
+                                                    -- todo
+                                                    , href ""
+                                                    ]
+                                                 else
+                                                    [ class "btn btn-outline block img center gray"
+                                                    , style [ ( "pointer-events", "none" ) ]
+                                                    ]
+                                                )
                                                 [ text "download all" ]
                                             ]
                                         ]

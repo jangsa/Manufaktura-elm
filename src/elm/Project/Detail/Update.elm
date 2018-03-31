@@ -55,13 +55,13 @@ update msg model =
                             j
 
                         Nothing ->
-                            Job -1 "" "" "" ""
+                            Job -1 "" "" "" "" [] [] "" ""
 
-                inputUrl =
-                    targetJob.inputUrl
+                lastInputUrl =
+                    targetJob.lastInputUrl
             in
-                if inputUrl /= "" then
-                    ( model, load inputUrl )
+                if lastInputUrl /= "" then
+                    ( model, load lastInputUrl )
                 else
                     ( model, Cmd.none )
 

@@ -30,12 +30,22 @@ parseLocation location =
         (UrlParser.parseHash matchers location)
 
 
+type alias FileOnServer =
+    { filename : String
+    , url : String
+    }
+
+
 type alias Job =
     { index : Int
     , name : String
     , description : String
-    , inputUrl : String
-    , outputUrl : String
+    , lastInputUrl : String
+    , lastOutputUrl : String
+    , inputUrls : List FileOnServer
+    , outputUrls : List FileOnServer
+    , zippedInputUrl : String
+    , zippedOutputUrl : String
     }
 
 

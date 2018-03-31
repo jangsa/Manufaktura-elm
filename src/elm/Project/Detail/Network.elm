@@ -4,7 +4,7 @@ import Http
 import RemoteData exposing (..)
 import Project.Detail.Model exposing (ProjectDetail)
 import Project.Detail.Message exposing (..)
-import Project.Detail.Json exposing (projectDecoder, projectEncoderForRegister)
+import Project.Detail.Json exposing (projectDecoder, projectEncoderUpstream)
 
 
 projectsAPI : String
