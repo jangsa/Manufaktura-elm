@@ -29,17 +29,17 @@ filterProjects projects keywords =
                 keys
                 |> List.foldr (&&) True
 
-        filterer detail =
+        filterPaper prj =
             n2nMatch
                 (String.toLower >> String.split " " <| keywords)
                 (List.map
                     String.toLower
-                    [ detail.id, detail.name, detail.created ]
+                    [ prj.id, prj.name, prj.created ]
                 )
 
         filtered =
             List.filter
-                filterer
+                filterPaper
                 projects
     in
         filtered
