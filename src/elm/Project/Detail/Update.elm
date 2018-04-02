@@ -3,10 +3,6 @@ module Project.Detail.Update exposing (..)
 import Dict exposing (..)
 import RemoteData exposing (..)
 import Navigation exposing (load)
-
-
---import Common.Native.File exposing (subscribeFileDropOn)
-
 import Project.Detail.Model exposing (..)
 import Project.Detail.Message exposing (..)
 import Project.Detail.Network exposing (fetchProject, uploadFile)
@@ -68,13 +64,6 @@ update msg model =
 
         DragoverMsg index ->
             let
-                --                attachListener jobState =
-                --                    subscribeFileDropOn
-                --                        (toString index)
-                --                        { preventDefault = True
-                --                        , stopPropagation = False
-                --                        }
-                --                        jobState
                 attachListener jobState =
                     fileDragged
 
@@ -89,12 +78,9 @@ update msg model =
                 dragoverredJobState =
                     { oldJobState | dragover = True, loaded = True }
 
-                --                newJobState =
-                --                    attachListener dragoverredJobState
                 newJobStateDict =
                     Dict.insert index dragoverredJobState model.jobStateDict
 
-                --                    Dict.insert index newJobState model.jobStateDict
                 newModel =
                     { model | jobStateDict = newJobStateDict }
             in
@@ -143,9 +129,6 @@ update msg model =
                     List.map
                         (\p -> Base64File p.name p.body)
                         packet.base64files
-
-                --loadedFiles =
-                --    { filename = packet.name, base64body = packet.body }
             in
                 ( model, uploadFile loadedFiles )
 

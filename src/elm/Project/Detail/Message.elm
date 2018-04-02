@@ -15,6 +15,5 @@ type Msg
     | DragoverMsg Int
     | DragleaveMsg Int
     | DropMsg Int
-      --    | FileLoadedPortMsg LoadedFile
     | FileLoadedPortMsg JobFilesUploadPacket
     | RemoteDoneMsg Int
