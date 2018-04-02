@@ -36,14 +36,12 @@ app.ports.fileDragged.subscribe(function (index) {
           var base64body = event.target.result;
 
           base64files.push ({
-	    name : file.name,
-	    //body : "this is the body of " + file.name
-	    body : base64body
-	  });
+            name : file.name,
+            body : base64body
+          });
 
           if(base64files.length == files.length)
-	    app.ports.fileLoaded.send({ index : index, base64files : base64files });
-	    //app.ports.fileLoaded.send({name : file.name, body : base64body});
+            app.ports.fileLoaded.send({ index : index, base64files : base64files });
         });
   
         reader.readAsDataURL(file);
@@ -55,14 +53,4 @@ app.ports.fileDragged.subscribe(function (index) {
   });
 
 });
-  /*
-  reader.onload = (function(event) {
-    var base64encoded = event.target.result;
-    var portData = {
-      base64Body : base64encoded,
-      filename : file.name
-    };
-    app.ports.receiveFile.send(portData);
-  });
 
-  reader.readAsDataURL(file);*/
