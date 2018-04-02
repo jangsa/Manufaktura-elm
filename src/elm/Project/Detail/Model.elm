@@ -49,12 +49,6 @@ type alias Job =
     }
 
 
-type alias Base64File =
-    { filename : String
-    , base64body : String
-    }
-
-
 type alias ProjectDetail =
     { id : String
     , name : String
@@ -74,9 +68,17 @@ initProjectDetail =
     }
 
 
+type alias Base64File =
+    { filename : String
+    , base64body : String
+    }
+
+
 type alias JobState =
     { dragover : Bool
     , awaitingRemoteDone : Bool
+    , loaded : Bool
+    , uploadingFiles : List Base64File
     }
 
 
@@ -84,20 +86,8 @@ initJobState : JobState
 initJobState =
     { dragover = False
     , awaitingRemoteDone = False
-    }
-
-
-dragoverJobState : JobState
-dragoverJobState =
-    { dragover = True
-    , awaitingRemoteDone = False
-    }
-
-
-awaitingJobState : JobState
-awaitingJobState =
-    { dragover = False
-    , awaitingRemoteDone = True
+    , loaded = False
+    , uploadingFiles = []
     }
 
 
@@ -106,7 +96,6 @@ type alias Model =
     , detailAsync : WebData ProjectDetail
     , detail : ProjectDetail
     , jobStateDict : Dict Int JobState
-    , loaded : Bool
     }
 
 
@@ -116,5 +105,4 @@ initModel =
     , detailAsync = NotAsked
     , detail = initProjectDetail
     , jobStateDict = empty
-    , loaded = False
     }

@@ -2,7 +2,7 @@ module Project.Detail.Network exposing (..)
 
 import Http
 import RemoteData exposing (..)
-import Project.Detail.Model exposing (ProjectDetail)
+import Project.Detail.Model exposing (..)
 import Project.Detail.Message exposing (..)
 import Project.Detail.Json exposing (projectDecoder, projectEncoderUpstream)
 
@@ -24,3 +24,14 @@ fetchProject id =
         projectDecoder
         |> RemoteData.sendRequest
         |> Cmd.map FetchAfterMsg
+
+
+uploadFile : List Base64File -> Cmd Msg
+uploadFile files =
+    let
+        a =
+            Debug.log
+                ("upload")
+                files
+    in
+        Cmd.none

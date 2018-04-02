@@ -3,28 +3,43 @@
 
 var _jangsa$manufaktura$Native_FileSupporter = function () {
 
-  function subscribeFileDropOn (elementID, options, model) {
+  function subscribeFileDropOn (index, options, jobState) {
 
-    if(!model.loaded) {
-//      console.log("attached");
+    // todo: make "loaded" attached to JobState so that each dropfield can be set listener
+
+    if (!jobState.loaded) {
+
+      var elementID = "dropfield-" + index;
       var element = document.getElementById(elementID);
-  
+
       element.addEventListener("drop", function(event) {
-  
+
         if (options.preventDefault) event.preventDefault();
         if (options.stopPropagation) event.stopPropagation();
-  
+
         var files = event.dataTransfer.files;
-  
-        // todo: return List (FileName, Base64)
-	console.log("uploaded!");
+	var reader = new FileReader();
+
+	reader.onload = (function(event) {
+	  var base64body = event.target.result;
+
+	  var base64File = {
+	    filename : files[0].name,
+	    base64body : base64body
+	  };
+
+          jobState.uploadingFiles.push(base64File);
+	  console.log(jobState.uploadingFiles);
+	});
+
+	reader.readAsDataURL(files[0]);
+	console.log(app);
       });
     }
 
-//    console.log("loaded -> true!");
-    model.loaded = true;
+    jobState.loaded = true;
 
-    return model;
+    return jobState;
   }
 
   return {

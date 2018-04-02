@@ -1,5 +1,6 @@
 module Project.Detail.Message exposing (..)
 
+import Project.Detail.Ports exposing (JobFilesUploadPacket)
 import Navigation exposing (Location)
 import RemoteData exposing (..)
 import Project.Detail.Model exposing (..)
@@ -14,4 +15,6 @@ type Msg
     | DragoverMsg Int
     | DragleaveMsg Int
     | DropMsg Int
+      --    | FileLoadedPortMsg LoadedFile
+    | FileLoadedPortMsg JobFilesUploadPacket
     | RemoteDoneMsg Int

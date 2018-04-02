@@ -73,7 +73,11 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Sub.batch
+        [ Sub.map
+            ProjectDetailMsg
+            (DetailUpdate.subscriptions model.projectDetailState)
+        ]
 
 
 matchList : List (Parser (Page -> a) a)
